@@ -26,34 +26,6 @@ import eu.cryptoeuro.bankgateway.services.transaction.model.Transaction;
 @Transactional
 public class LhvConnectServiceImpl implements LhvConnectService {
 
-    /*
-    TODO add to config:
-    
-    @Bean
-    public LhvConnectOperations lhvConnect() throws Exception {
-        CloseableHttpClient lhvHttpClient = null;
-        if (StringUtils.isNotBlank(lhvConnectKeyStorePath) && StringUtils.isNotBlank(lhvConnectKeyStorePassword)) {
-            lhvHttpClient = HttpClients.custom()
-                    .addInterceptorFirst(new HttpComponentsMessageSender.RemoveSoapHeadersInterceptor())
-                    .setSSLSocketFactory(new SSLConnectionSocketFactory(createSslContext()))
-                    .build();
-        }
-        return new LhvRestTemplate(lhvHttpClient);
-    }
-    
-    private SSLContext createSslContext() {
-        try {
-            File keystore = new File(lhvConnectKeyStorePath);
-            char[] password = lhvConnectKeyStorePassword.toCharArray();
-            return SSLContexts.custom().loadKeyMaterial(keystore, password, password).build();
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to set up SSL WebService template!", e);
-        }
-    }
-     */
-
     @Value("${lhv.reserve.iban}")
     private String lhvReserveIban;
     @Autowired
