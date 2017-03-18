@@ -55,6 +55,8 @@ dependencies {
 	compile('com.h2database:h2')
 	compile('com.google.http-client:google-http-client:1.22.0')
 	compile('org.apache.httpcomponents:httpclient:4.5.3')
+	compile('org.apache.commons:commons-lang3:3.5')
+	compile('org.apache.commons:commons-collections4:4.1')
 
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile("org.spockframework:spock-spring:1.0-groovy-2.4")
