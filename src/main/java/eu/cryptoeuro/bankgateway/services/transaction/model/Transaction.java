@@ -21,6 +21,7 @@ public class Transaction implements Serializable {
     private Long id;
     private String processingStatus;
 
+    private String iban;
     private String currency;
     private BigDecimal amount;
     private CreditDebitIndicator creditDebitIndicator;

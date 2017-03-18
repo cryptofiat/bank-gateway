@@ -1,4 +1,4 @@
-package eu.cryptoeuro.bankgateway.services.transaction;
+package eu.cryptoeuro.bankgateway.services.common;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;

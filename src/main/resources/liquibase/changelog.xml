@@ -60,4 +60,23 @@
                              tableName="transaction" />
     </changeSet>
 
+    <changeSet id="2" author="Erko Hansar">
+        <comment>Create tables: balance</comment>
+        <createTable tableName="balance" remarks="Company bank account balance details">
+            <column name="id" type="bigint" autoIncrement="true" remarks="Primary key from sequence">
+                <constraints primaryKey="true" primaryKeyName="pk_balance_id" nullable="false"/>
+            </column>
+            <column name="iban" type="varchar(100)" remarks="Bank account IBAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="currency" type="varchar(100)" remarks="Currency for bank account (EUR, USD, ...)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="balance" type="numeric" remarks="Amount of money for this bank account balance. Closing balance." />
+            <column name="credit_debit_indicator" type="varchar(100)" remarks="Indicates if balance is CRDT (positive amount or zero) or DBIT (negative amount)" />
+            <column name="balance_date" type="datetime" remarks="Bank account balance time." />
+            <column name="synced_to_date" type="datetime" remarks="Bank account balance sync time." />
+        </createTable>
+    </changeSet>
+
 </databaseChangeLog>

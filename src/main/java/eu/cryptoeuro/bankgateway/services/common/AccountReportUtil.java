@@ -1,4 +1,4 @@
-package eu.cryptoeuro.bankgateway.services.transaction;
+package eu.cryptoeuro.bankgateway.services.common;
 
 import static eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_052_001_02.DocumentType3Code.SCOR;
 

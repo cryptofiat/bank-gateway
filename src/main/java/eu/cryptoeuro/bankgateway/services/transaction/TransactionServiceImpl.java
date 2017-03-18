@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
@@ -24,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.oxm.UnmarshallingFailureException;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.stereotype.Service;
@@ -31,6 +31,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_052_001_02.AccountReport11;
 import eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_053_001_02.AccountStatement2;
+import eu.cryptoeuro.bankgateway.services.balance.BalanceDao;
+import eu.cryptoeuro.bankgateway.services.balance.model.Balance;
+import eu.cryptoeuro.bankgateway.services.common.AccountReportUtil;
+import eu.cryptoeuro.bankgateway.services.common.AccountStatementResponseUtil;
 import eu.cryptoeuro.bankgateway.services.lhv.LhvConnectApiImpl;
 import eu.cryptoeuro.bankgateway.services.transaction.model.Statement;
 import eu.cryptoeuro.bankgateway.services.transaction.model.Transaction;
@@ -40,10 +44,10 @@ import eu.cryptoeuro.bankgateway.services.transaction.model.Transaction;
 @Transactional
 public class TransactionServiceImpl implements TransactionService {
 
-    //@Autowired
-    //private TransactionDao transactionDao;
-    //@Autowired
-    //private BankAccountService bankAccountService;
+    @Autowired
+    private TransactionDao transactionDao;
+    @Autowired
+    private BalanceDao balanceDao;
 
     private Jaxb2Marshaller unmarshaller;
 
@@ -87,7 +91,7 @@ public class TransactionServiceImpl implements TransactionService {
         if (!hasStatements(accountStatementDocument)) {
             return ABNORMAL_IMPORT_RESULT;
         }
-        return persistTransactions(extractStatements(accountStatementDocument), importSource, null);
+        return persistTransactions(extractStatements(accountStatementDocument), importSource);
     }
 
     ///// PRIVATE METHODS /////
@@ -96,7 +100,7 @@ public class TransactionServiceImpl implements TransactionService {
         if (!hasStatements(accountReportDocument)) {
             return ABNORMAL_IMPORT_RESULT;
         }
-        return persistTransactions(extractStatements(accountReportDocument), importSource, null);
+        return persistTransactions(extractStatements(accountReportDocument), importSource);
     }
 
     private Optional<String> determineNamespace(File inputFile) {
@@ -184,42 +188,38 @@ public class TransactionServiceImpl implements TransactionService {
         return statements;
     }
 
-    private int persistTransactions(List<Statement> statements, final String importSource, Date syncDate) {
+    private int persistTransactions(List<Statement> statements, final String importSource) {
+        List<Balance> balances = new ArrayList<>();
         List<Transaction> messageTransactions = new ArrayList<>();
-        //List<BankAccountBalance> balances = new ArrayList<>(); // TODO
         for (Statement statement : statements) {
-            /*
             if (statement.getCurrency() != null) {
-                BankAccountBalance balance = createBalance(statement, account);
+                Balance balance = createBalance(statement);
                 balances.add(balance);
             }
-            */
 
-            //setTransactionSyncDate(statement.getToDate()); // TODO save this sync date for the next sync run
             messageTransactions.addAll(statement.getTransactions());
         }
 
-        //updateBalanceAndSyncDate(accounts, balances, syncDate); // TODO
+        if (CollectionUtils.isNotEmpty(balances)) {
+            balanceDao.insert(balances);
+        }
 
         if (CollectionUtils.isEmpty(messageTransactions)) {
             return 0;
         }
-
         messageTransactions.forEach((transaction) -> transaction.setImportSource(importSource));
-        //return transactionDao.insert(messageTransactions); // TODO save to db
-        return 0;
+        return transactionDao.insert(messageTransactions);
     }
 
-    /*
-    private BankAccountBalance createBalance(Statement statement, Optional<BankAccount> account) {
-        BankAccountBalance balance = new BankAccountBalance();
-        balance.setBankAccountId(account.get().getId());
+    private Balance createBalance(Statement statement) {
+        Balance balance = new Balance();
+        balance.setIban(statement.getIban());
         balance.setCurrency(statement.getCurrency());
         balance.setBalance(statement.getBalance());
-        balance.setBalanceDate(statement.getBalanceDate());
         balance.setCreditDebitIndicator(statement.getCreditDebitIndicator());
+        balance.setBalanceDate(statement.getBalanceDate());
+        balance.setSyncedToDate(statement.getToDate());
         return balance;
     }
-    */
 
 }
