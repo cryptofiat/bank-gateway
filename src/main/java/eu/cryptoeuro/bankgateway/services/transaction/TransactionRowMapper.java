@@ -33,6 +33,7 @@ public class TransactionRowMapper extends AbstractRowMapper<Transaction> {
         result.setAccountServicerReference(getString(rs, "account_servicer_reference"));
         result.setInstructionId(getString(rs, "instruction_id"));
         result.setDebtorName(getString(rs, "debtor_name"));
+        result.setDebtorId(getString(rs, "debtor_id"));
         result.setUltimateDebtorName(getString(rs, "ultimate_debtor_name"));
         result.setDebtorAccountIban(getString(rs, "debtor_account_iban"));
         result.setDebtorAccountOtherId(getString(rs, "debtor_account_other_id"));

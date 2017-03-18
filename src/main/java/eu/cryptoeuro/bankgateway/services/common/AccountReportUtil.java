@@ -24,7 +24,10 @@ import eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_052_001_02.EntryDetails1;
 import eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_052_001_02.EntryTransaction2;
 import eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_052_001_02.FinancialInstitutionIdentification7;
 import eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_052_001_02.GenericAccountIdentification1;
+import eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_052_001_02.GenericPersonIdentification1;
+import eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_052_001_02.Party6Choice;
 import eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_052_001_02.PartyIdentification32;
+import eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_052_001_02.PersonIdentification5;
 import eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_052_001_02.RemittanceInformation5;
 import eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_052_001_02.ReportEntry2;
 import eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_052_001_02.StructuredRemittanceInformation7;
@@ -38,6 +41,7 @@ import eu.cryptoeuro.bankgateway.services.transaction.model.Transaction;
  * Util class containing functionality for mapping {@link Transaction} objects from {@link eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_052_001_02.Document}
  * objects
  *
+ * @author Erko Hansar
  * @author Kaarel Jõgeva
  */
 public class AccountReportUtil {
@@ -99,6 +103,13 @@ public class AccountReportUtil {
         // Optional
         Optional<TransactionParty2> rltdPties = Optional.ofNullable(details.getRltdPties());
         rltdPties.map(TransactionParty2::getDbtr).map(PartyIdentification32::getNm).ifPresent(t::setDebtorName);
+        rltdPties.map(TransactionParty2::getDbtr)
+                .map(PartyIdentification32::getId)
+                .map(Party6Choice::getPrvtId)
+                .map(PersonIdentification5::getOthr)
+                .map(i -> i.isEmpty() ? null : i.get(0)) // List<GenericPersonIdentification1>
+                .map(GenericPersonIdentification1::getId)
+                .ifPresent(t::setDebtorId);
         rltdPties.map(TransactionParty2::getUltmtDbtr).map(PartyIdentification32::getNm).ifPresent(t::setUltimateDebtorName);
         Optional<AccountIdentification4Choice> debtorAccountId = rltdPties.map(TransactionParty2::getDbtrAcct).map(CashAccount16::getId);
         debtorAccountId.map(AccountIdentification4Choice::getIBAN).ifPresent(t::setDebtorAccountIban);

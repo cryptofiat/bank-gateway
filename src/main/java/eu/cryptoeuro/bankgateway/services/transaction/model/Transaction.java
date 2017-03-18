@@ -38,6 +38,7 @@ public class Transaction implements Serializable {
     private String instructionId;
 
     private String debtorName;
+    private String debtorId;
     private String ultimateDebtorName;
     private String debtorAccountIban;
     private String debtorAccountOtherId;
