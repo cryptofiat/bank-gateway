@@ -1,4 +1,4 @@
-package com.kryptoeuro.bankgateway.config;
+package eu.cryptoeuro.bankgateway.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
