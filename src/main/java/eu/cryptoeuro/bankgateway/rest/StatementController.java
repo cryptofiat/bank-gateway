@@ -20,9 +20,9 @@ public class StatementController {
 	public String handleFileUpload(@RequestParam("statementFile") MultipartFile file,
 																 RedirectAttributes redirectAttributes) {
 		redirectAttributes.addFlashAttribute("message",
-						"You successfully uploaded " + file.getOriginalFilename() + "!");
+						"You successfully uploaded '" + file.getOriginalFilename() + "' ("+ file.getSize() +" bytes)!");
 
-		return "redirect:/upload.html";
+		return "redirect:/statement";
 	}
 
 }

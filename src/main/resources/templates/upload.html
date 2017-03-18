@@ -1,11 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"/>
     <title>Statement upload</title>
 </head>
 <body>
 <h1>Upload an ISO 20022 statement file</h1>
+<div th:if="${message}">
+    <h2 th:text="${message}"/>
+</div>
 <form action="/statement" method="post" enctype="multipart/form-data">
     <input type="file" id="fileinput" name="statementFile"/>
     <input type="submit"/>
