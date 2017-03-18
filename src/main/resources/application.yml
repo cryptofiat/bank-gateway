@@ -1,0 +1,6 @@
+bank.lhv:
+  url: https://www.lhv.ee
+  loginPath: /auth/login.cfm
+  username: <here>
+  password: <here>
+

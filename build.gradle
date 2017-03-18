@@ -9,7 +9,7 @@ buildscript {
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-        classpath group: 'org.zeroturnaround', name: 'gradle-jrebel-plugin', version: '1.1.2'
+		classpath group: 'org.zeroturnaround', name: 'gradle-jrebel-plugin', version: '1.1.2'
 	}
 }
 
@@ -52,6 +52,8 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-data-jpa')
 	compile('org.bouncycastle:bcprov-jdk15on:1.54')
 	compile('com.h2database:h2')
+	compile('com.google.http-client:google-http-client:1.22.0')
+	compile('org.apache.httpcomponents:httpclient:4.5.3')
 
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile("org.spockframework:spock-spring:1.0-groovy-2.4")
