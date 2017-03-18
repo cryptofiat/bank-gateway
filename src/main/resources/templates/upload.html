@@ -9,6 +9,9 @@
 <div th:if="${message}">
     <h2 th:text="${message}"/>
 </div>
+<div th:if="${error}">
+    <font color="red"><h2 th:text="${error}"/></font>
+</div>
 <form action="/statement" method="post" enctype="multipart/form-data">
     <input type="file" id="fileinput" name="statementFile"/>
     <input type="submit"/>
