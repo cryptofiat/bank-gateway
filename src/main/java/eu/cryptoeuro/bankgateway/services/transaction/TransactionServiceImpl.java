@@ -165,7 +165,7 @@ public class TransactionServiceImpl implements TransactionService {
         for (AccountStatement2 bankStatement : accountStatementDocument.getBkToCstmrStmt().getStmt()) {
             Statement statement = AccountStatementResponseUtil.parseStatement(bankStatement);
             List<Transaction> statementTransactions = bankStatement.getNtry().stream()
-                    .map(entry -> AccountStatementResponseUtil.parseTransaction(entry))
+                    .map(entry -> AccountStatementResponseUtil.parseTransaction(entry, statement.getIban()))
                     .flatMap(List::stream)
                     .collect(Collectors.toList());
             statement.setTransactions(statementTransactions);
@@ -179,7 +179,7 @@ public class TransactionServiceImpl implements TransactionService {
         for (AccountReport11 bankReport : accountReportDocument.getBkToCstmrAcctRpt().getRpt()) {
             Statement statement = AccountReportUtil.parseReport(bankReport);
             List<Transaction> statementTransactions = bankReport.getNtry().stream()
-                    .map(entry -> AccountReportUtil.parseTransaction(entry))
+                    .map(entry -> AccountReportUtil.parseTransaction(entry, statement.getIban()))
                     .flatMap(List::stream)
                     .collect(Collectors.toList());
             statement.setTransactions(statementTransactions);

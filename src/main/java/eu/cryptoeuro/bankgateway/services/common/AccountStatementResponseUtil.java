@@ -66,16 +66,18 @@ public class AccountStatementResponseUtil {
         return stmt;
     }
 
-    public static List<Transaction> parseTransaction(final ReportEntry2 entry) {
+    public static List<Transaction> parseTransaction(ReportEntry2 entry, String iban) {
         return entry.getNtryDtls().stream().map(EntryDetails1::getTxDtls).flatMap(List::stream)
-                .map(details -> parseTransactionDetails(details, entry)).collect(Collectors.toList());
+                .map(details -> parseTransactionDetails(details, entry, iban)).collect(Collectors.toList());
     }
 
 
-    private static Transaction parseTransactionDetails(final EntryTransaction2 details, final ReportEntry2 entry) {
+    private static Transaction parseTransactionDetails(EntryTransaction2 details, ReportEntry2 entry, String iban) {
         Transaction t = new Transaction();
 
         // Mandatory
+        t.setProcessingStatus(Transaction.ProcessingStatus.NEW);
+        t.setIban(iban);
         if (details.getAmtDtls() != null) {
             t.setCurrency(details.getAmtDtls().getTxAmt().getAmt().getCcy());
             t.setAmount(details.getAmtDtls().getTxAmt().getAmt().getValue());

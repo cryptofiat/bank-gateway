@@ -19,7 +19,7 @@ public interface TransactionService {
      * @param inputFile ISO20022 CAMT.053.001.02 or CAMT.052.001.02 compatible XML file
      * @param importSource source of this transaction
      * @return number of transactions imported or {@link TransactionService#ABNORMAL_IMPORT_RESULT} if no suitable data was found from input
-     * @see eu.leapin.portal.service.transaction.Transaction.Source
+     * @see eu.cryptoeuro.bankgateway.services.transaction.Transaction.Source
      */
     int importTransactions(File inputFile, String importSource) throws Exception;
 
@@ -29,7 +29,7 @@ public interface TransactionService {
      * @param accountStatementDocument ISO20022 CAMT.053.001.02 Document
      * @param importSource source of this transaction
      * @return number of transactions imported or {@link TransactionService#ABNORMAL_IMPORT_RESULT} if no suitable data was found from input
-     * @see eu.leapin.portal.service.transaction.Transaction.Source
+     * @see eu.cryptoeuro.bankgateway.services.transaction.Transaction.Source
      */
     int importTransactions(Document accountStatementDocument, String importSource);
 

@@ -136,6 +136,10 @@ public class Transaction implements Serializable {
         return "Unknown";
     }
 
+    public interface ProcessingStatus {
+        String NEW = "NEW";
+    }
+
     public interface Source {
         String LHV_CONNECT = "LHV_CONNECT";
         String FILE_IMPORT = "FILE_IMPORT";
