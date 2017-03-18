@@ -57,6 +57,7 @@ dependencies {
 	compile('org.liquibase:liquibase-core:3.3.5')
 	compile('org.apache.commons:commons-lang3:3.5')
 	compile('org.apache.commons:commons-collections4:4.1')
+	runtime('org.postgresql:postgresql:9.4.1212')
 
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile("org.spockframework:spock-spring:1.0-groovy-2.4")
