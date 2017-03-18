@@ -1,4 +1,4 @@
-package com.kryptoeuro.bankgateway.rest;
+package eu.cryptoeuro.bankgateway.rest;
 
 import lombok.Builder;
 import lombok.Data;

@@ -1,6 +1,6 @@
-package com.kryptoeuro.bankgateway;
+package eu.cryptoeuro.bankgateway;
 
-import com.kryptoeuro.bankgateway.services.LhvService;
+import eu.cryptoeuro.bankgateway.services.LhvService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

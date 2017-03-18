@@ -1,6 +1,6 @@
-package com.kryptoeuro.bankgateway.rest;
+package eu.cryptoeuro.bankgateway.rest;
 
-import com.kryptoeuro.bankgateway.services.AccountBalanceService;
+import eu.cryptoeuro.bankgateway.services.AccountBalanceService;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

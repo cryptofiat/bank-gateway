@@ -1,4 +1,4 @@
-package com.kryptoeuro.bankgateway.services;
+package eu.cryptoeuro.bankgateway.services;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
