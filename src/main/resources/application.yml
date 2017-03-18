@@ -1,9 +1,3 @@
-bank.lhv:
-  url: https://www.lhv.ee
-  loginPath: /auth/login.cfm
-  username: <here>
-  password: <here>
-
 lhv.reserve.iban: EE327700771002504613
 lhv.gateway.iban: EE697700771002504626
 
