@@ -19,10 +19,10 @@ apply plugin: 'idea'
 apply plugin: 'spring-boot'
 
 bootRun {
-    if ( project.hasProperty('jvmArgs') ) {
-        jvmArgs = (project.jvmArgs.split("\\s+") as List)
-    }
+    // support passing -Dsystem.property=value to bootRun task
+    systemProperties = System.properties    
 }
+
 jar.dependsOn(generateRebel)
 
 jar {
