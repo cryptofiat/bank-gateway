@@ -79,4 +79,10 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="3" author="AlvarL">
+        <addColumn tableName="transaction">
+            <column name="debtor_id" type="varchar(100)" remarks="ID code of the debtor"/>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>
