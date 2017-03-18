@@ -4,3 +4,9 @@ bank.lhv:
   username: <here>
   password: <here>
 
+lhv.reserve.iban: EE123
+
+database.url=jdbc:postgresql://postgres.cxey7gwcsm2l.eu-west-1.rds.amazonaws.com:5432/gateway
+database.username=lhv_gateway
+database.password=
+database.schema=lhv

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="1" author="Erko Hansar">
+        <comment>Create tables: transactions</comment>
+        <createTable tableName="transaction">
+            <column name="id" type="bigint" autoIncrement="true" remarks="Primary key from sequence">
+                <constraints primaryKey="true" primaryKeyName="pk_transaction_id" nullable="false" />
+            </column>
+            <column name="processing_status" type="varchar(100)" remarks="Gateway transaction processing status (NEW, ...)">
+                <constraints nullable="false" />
+            </column>
+            <column name="iban" type="varchar(100)" remarks="Bank account IBAN that this transaction relates to">            
+                <constraints nullable="false" />
+            </column>
+            <column name="currency" type="varchar(100)" remarks="Currency for the transaction">
+                <constraints nullable="false" />
+            </column>
+            <column name="amount" type="money" remarks="Amount of money in transaction">
+                <constraints nullable="false" />
+            </column>
+            <column name="credit_debit_indicator" type="varchar(100)" remarks="Marks whether transaction was credit (&gt;=0) or debit (&lt;0)">
+                <constraints nullable="false" />
+            </column>
+            <column name="booking_date" type="datetime" remarks="Time the transaction took place">
+                <constraints nullable="false" />
+            </column>
+            <column name="status" type="varchar(100)" remarks="Status of the transaction">
+                <constraints nullable="false" />
+            </column>
+            <column name="transaction_domain_code" type="varchar(100)" remarks="First level transaction type classification" />
+            <column name="transaction_family_code" type="varchar(100)" remarks="Second level transaction type classification" />
+            <column name="transaction_sub_family_code" type="varchar(100)" remarks="Third level transaction type classification" />
+            <column name="account_servicer_reference" type="varchar(100)" remarks="Unique payment ID assigned by the bank" />
+            <column name="instruction_id" type="varchar(100)" remarks="Payment order number" />
+            <column name="debtor_name" type="text" remarks="Name of debtor" />
+            <column name="debtor_account_iban" type="varchar(100)" remarks="Debtor account IBAN" />
+            <column name="debtor_account_other_id" type="varchar(100)" remarks="Debtor account ID if IBAN is unavailable" />
+            <column name="debtor_agent_bic_or_bei" type="varchar(100)" remarks="Debtor agent BIC or BEI code" />
+            <column name="debtor_agent_name" type="text" remarks="Debtor agent name" />
+            <column name="creditor_name" type="text" remarks="Name of creditor" />
+            <column name="creditor_account_iban" type="varchar(100)" remarks="Creditor account IBAN" />
+            <column name="creditor_account_other_id" type="varchar(100)" remarks="Creditor account ID if IBAN is unavailable" />
+            <column name="creditor_agent_bic_or_bei" type="varchar(100)" remarks="Creditor agent BIC or BEI code" />
+            <column name="creditor_agent_name" type="text" remarks="Creditor agent name" />
+            <column name="remittance_information" type="text" remarks="Unstructured remittance information text" />
+            <column name="reference_number" type="text" remarks="Reference number from structured remittance information text" />
+            <column name="import_source" type="varchar(100)" remarks="Imported transaction source such as LHV Connect, file upload etc." />
+            <column name="ultimate_debtor_name" type="text" remarks="Name of ultimate debtor. Needed for TransferWise credit transactions." />
+        </createTable>
+        <addUniqueConstraint columnNames="account_servicer_reference"
+                             constraintName="uq_account_servicer_reference"
+                             deferrable="true"
+                             disabled="true"
+                             initiallyDeferred="true"
+                             tableName="transaction" />
+    </changeSet>
+
+</databaseChangeLog>

@@ -19,6 +19,7 @@ public class Transaction implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;
+    private String processingStatus;
 
     private String currency;
     private BigDecimal amount;

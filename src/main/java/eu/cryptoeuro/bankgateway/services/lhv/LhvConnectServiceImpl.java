@@ -11,6 +11,7 @@ import javax.xml.bind.JAXBElement;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +28,7 @@ public class LhvConnectServiceImpl implements LhvConnectService {
 
     /*
     TODO add to config:
-
+    
     @Bean
     public LhvConnectOperations lhvConnect() throws Exception {
         CloseableHttpClient lhvHttpClient = null;
@@ -39,7 +40,7 @@ public class LhvConnectServiceImpl implements LhvConnectService {
         }
         return new LhvRestTemplate(lhvHttpClient);
     }
-
+    
     private SSLContext createSslContext() {
         try {
             File keystore = new File(lhvConnectKeyStorePath);
@@ -53,8 +54,8 @@ public class LhvConnectServiceImpl implements LhvConnectService {
     }
      */
 
-    private static final String IBAN = null; // TODO get our LHV reserve account IBAN from configuration
-
+    @Value("${lhv.reserve.iban}")
+    private String lhvReserveIban;
     @Autowired
     private LhvConnectApi lhvConnectApi;
     @Autowired
@@ -72,7 +73,7 @@ public class LhvConnectServiceImpl implements LhvConnectService {
         calendar.add(Calendar.DATE, -7); // XXX hard-coded period "last 7 days"
         Date fromDate = calendar.getTime();
 
-        LhvRequest lhvRequest = postAccountStatementPeriod(IBAN, fromDate, toDate);
+        LhvRequest lhvRequest = postAccountStatementPeriod(lhvReserveIban, fromDate, toDate);
         //lhvRequestDao.insert(lhvRequest); // TODO save into db?
     }
 
