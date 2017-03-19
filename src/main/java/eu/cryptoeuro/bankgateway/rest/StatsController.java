@@ -1,6 +1,7 @@
 package eu.cryptoeuro.bankgateway.rest;
 
 import eu.cryptoeuro.bankgateway.services.AccountBalanceService;
+import eu.cryptoeuro.bankgateway.services.balance.model.Balance;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +28,8 @@ public class StatsController {
 					method = GET,
 					value = "/totalReserve")
 	public ResponseEntity<TotalReserveResponse> totalReserve() {
-		BigDecimal total = accountBalanceService.getCurrentBalance();
-		return new ResponseEntity<TotalReserveResponse>(TotalReserveResponse.create(total), HttpStatus.OK);
+		Balance currentBalance = accountBalanceService.getCurrentBalance();
+		return new ResponseEntity<>(TotalReserveResponse.createFromBalance(currentBalance), HttpStatus.OK);
 	}
 
 }

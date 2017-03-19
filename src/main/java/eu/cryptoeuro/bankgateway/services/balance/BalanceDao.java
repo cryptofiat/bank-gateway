@@ -20,6 +20,11 @@ public class BalanceDao extends AbstractDao {
         return getJdbcTemplate().query(sql, BalanceRowMapper.INSTANCE);
     }
 
+    public Balance findLatest() {
+        String sql = "SELECT * FROM lhv.balance ORDER BY balance_date DESC, id DESC limit 1";
+        return getJdbcTemplate().queryForObject(sql, BalanceRowMapper.INSTANCE);
+    }
+
     public void insert(List<Balance> balances) {
         String sql = "INSERT INTO lhv.balance (iban, currency, balance, credit_debit_indicator, balance_date, synced_to_date) "
                 + "VALUES (:iban, :currency, :balance, :creditDebitIndicator, :balanceDate, :syncedToDate)";
