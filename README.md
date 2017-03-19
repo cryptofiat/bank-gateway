@@ -1,3 +1,9 @@
+# Vision
+
+The current implementation is a little bit "shortsighted". Instead we need to build 2 separate components:
+* reserve monitoring (monitors reserve transactions and balance and notifies slack)
+* lhv gateway implementation (monitors gateway transactions, makes kryptoeuro transactions for deposits and real euro transactions for withdrawals)
+
 # bank-gateway
 
 Bank gateway handles communication between the reserve (kept in LHV) and the cryptocurrency supply. 
