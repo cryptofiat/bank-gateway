@@ -38,6 +38,7 @@ public class TransactionProcessingJob {
 
             if (Transaction.ProcessingStatus.NEW.equals(transaction.getProcessingStatus())) {
                 sendSlackNotification(transaction);
+                transaction.setProcessingStatus(Transaction.ProcessingStatus.NOTIFIED);
             }
 
             if (Transaction.ProcessingStatus.NOTIFIED.equals(transaction.getProcessingStatus())) {
@@ -67,8 +68,6 @@ public class TransactionProcessingJob {
         msg.setText("LHV reserve account has a new transaction.");
         msg.setAttachments(new Attachment[] {attachment});
         slackService.sendReserveMessage(msg);
-
-        transaction.setProcessingStatus(Transaction.ProcessingStatus.NOTIFIED);
     }
 
 }
