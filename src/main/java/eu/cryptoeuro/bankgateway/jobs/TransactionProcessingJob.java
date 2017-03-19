@@ -37,23 +37,7 @@ public class TransactionProcessingJob {
                     + transaction.getAmountSigned() + ", " + transaction.getProcessingStatus());
 
             if (Transaction.ProcessingStatus.NEW.equals(transaction.getProcessingStatus())) {
-                // send a Slack notification
-                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-                List<Field> fields = new ArrayList<>();
-                fields.add(new Field("Tx id", transaction.getId().toString(), true));
-                fields.add(new Field("Tx date", format.format(transaction.getBookingDate()), true));
-                fields.add(new Field("Debtor name", StringUtils.defaultIfBlank(transaction.getUltimateDebtorName(), transaction.getDebtorName()), true));
-                fields.add(new Field("Amount", String.valueOf(transaction.getAmountSigned()) + " " + transaction.getCurrency(), true));
-                fields.add(new Field("Description", transaction.getRemittanceInformation(), false));
-                Attachment attachment = new Attachment();
-                attachment.setColor("#00f4a3");
-                attachment.setFields(fields.toArray(new Field[fields.size()]));
-                Message msg = new Message();
-                msg.setText("LHV reserve account has a new transaction.");
-                msg.setAttachments(new Attachment[] {attachment});
-                slackService.sendReserveMessage(msg);
-
-                transaction.setProcessingStatus(Transaction.ProcessingStatus.NOTIFIED);
+                sendSlackNotification(transaction);
             }
 
             if (Transaction.ProcessingStatus.NOTIFIED.equals(transaction.getProcessingStatus())) {
@@ -65,6 +49,26 @@ public class TransactionProcessingJob {
         }
 
         log.info("Completed processing of transactions");
+    }
+
+    private void sendSlackNotification(Transaction transaction) {
+        // send a Slack notification
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        List<Field> fields = new ArrayList<>();
+        fields.add(new Field("Tx id", transaction.getId().toString(), true));
+        fields.add(new Field("Tx date", format.format(transaction.getBookingDate()), true));
+        fields.add(new Field("Debtor name", StringUtils.defaultIfBlank(transaction.getUltimateDebtorName(), transaction.getDebtorName()), true));
+        fields.add(new Field("Amount", String.valueOf(transaction.getAmountSigned()) + " " + transaction.getCurrency(), true));
+        fields.add(new Field("Description", transaction.getRemittanceInformation(), false));
+        Attachment attachment = new Attachment();
+        attachment.setColor("#00f4a3");
+        attachment.setFields(fields.toArray(new Field[fields.size()]));
+        Message msg = new Message();
+        msg.setText("LHV reserve account has a new transaction.");
+        msg.setAttachments(new Attachment[] {attachment});
+        slackService.sendReserveMessage(msg);
+
+        transaction.setProcessingStatus(Transaction.ProcessingStatus.NOTIFIED);
     }
 
 }
