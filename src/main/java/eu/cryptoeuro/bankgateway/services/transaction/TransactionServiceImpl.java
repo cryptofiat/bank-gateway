@@ -94,6 +94,17 @@ public class TransactionServiceImpl implements TransactionService {
         return persistTransactions(extractStatements(accountStatementDocument), importSource);
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public List<Transaction> findUnprocessedTransactions() {
+        return transactionDao.findUnprocessed();
+    }
+
+    @Override
+    public void updateProcessingStatus(long transactionId, String processingStatus) {
+        transactionDao.updateProcessingStatus(transactionId, processingStatus);
+    }
+
     ///// PRIVATE METHODS /////
 
     private int importTransactions(eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_052_001_02.Document accountReportDocument, String importSource) {

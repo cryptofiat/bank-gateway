@@ -1,11 +1,13 @@
 package eu.cryptoeuro.bankgateway.services.transaction;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
 import org.springframework.stereotype.Repository;
 
 import eu.cryptoeuro.bankgateway.services.common.AbstractDao;
+import eu.cryptoeuro.bankgateway.services.common.AdvancedParameterSource;
 import eu.cryptoeuro.bankgateway.services.transaction.model.Transaction;
 
 /**
@@ -29,6 +31,22 @@ public class TransactionDao extends AbstractDao {
 
         int[] created = getNamedParameterJdbcTemplate().batchUpdate(sql, getBatchParameterSource(transactions));
         return IntStream.of(created).sum();
+    }
+
+    public List<Transaction> findUnprocessed() {
+        String sql = "SELECT * FROM lhv.transaction WHERE processing_status IN (:processingStatus) ORDER BY id";
+        AdvancedParameterSource source = new AdvancedParameterSource().addValue("processingStatus", Arrays.asList(Transaction.ProcessingStatus.NEW));
+        return getNamedParameterJdbcTemplate().query(sql, source, TransactionRowMapper.INSTANCE);
+    }
+
+    public void updateProcessingStatus(long transactionId, String processingStatus) {
+        String sql = "UPDATE lhv.transaction "
+                + "SET processing_status=:processingStatus "
+                + "WHERE id = :id";
+        AdvancedParameterSource source = new AdvancedParameterSource()
+                .addValue("id", transactionId)
+                .addValue("processingStatus", processingStatus);
+        getNamedParameterJdbcTemplate().update(sql, source);
     }
 
 }

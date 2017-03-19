@@ -139,6 +139,7 @@ public class Transaction implements Serializable {
 
     public interface ProcessingStatus {
         String NEW = "NEW";
+        String NOTIFIED = "NOTIFIED";
     }
 
     public interface Source {
