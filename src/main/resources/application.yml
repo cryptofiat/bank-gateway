@@ -1,11 +1,13 @@
 lhv.reserve.iban: EE327700771002504613
 lhv.gateway.iban: EE697700771002504626
 
-lhv.connect.keyStore.path: 
-lhv.connect.keyStore.password: 
+lhv:
+  connect.keyStore:
+    URL: classpath:lhv.jks
+    password: letmein
     
 database: 
-  url: jdbc:postgresql://postgres.cxey7gwcsm2l.eu-west-1.rds.amazonaws.com:5432/gateway
+  url: jdbc:postgresql://localhost:5432/gateway
   username: lhv_gateway
   password:
   schema: lhv

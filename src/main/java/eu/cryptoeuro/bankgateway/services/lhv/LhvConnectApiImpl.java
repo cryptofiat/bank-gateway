@@ -59,10 +59,10 @@ public class LhvConnectApiImpl extends RestTemplate implements LhvConnectApi {
         setRequestFactory(new BufferingClientHttpRequestFactory(new HttpComponentsClientHttpRequestFactory(httpClient)));
         setErrorHandler(new LhvErrorHandler());
 
-        Jaxb2Marshaller marshaller = createMarshaller("eu.cryptoeuro.client.iso20022.camt_060_001_03");
-        Jaxb2Marshaller unmarshaller = createMarshaller("eu.cryptoeuro.client.iso20022.camt_053_001_02",
-                "eu.cryptoeuro.client.iso20022.camt_054_001_02",
-                "eu.cryptoeuro.client.lhv");
+        Jaxb2Marshaller marshaller = createMarshaller("eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_060_001_03");
+        Jaxb2Marshaller unmarshaller = createMarshaller("eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_053_001_02",
+                "eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_054_001_02",
+                "eu.cryptoeuro.bankgateway.jaxb.lhv");
         messageExtractor = new LhvMessageExtractor(unmarshaller);
         setMessageConverters(Collections.singletonList(new MarshallingHttpMessageConverter(marshaller, unmarshaller)));
     }

@@ -30,6 +30,8 @@ public class LhvConnectServiceImpl implements LhvConnectService {
 
     @Value("${lhv.reserve.iban}")
     private String lhvReserveIban;
+    @Value("${lhv.gateway.iban}")
+    private String lhvGatewayIban;
     @Autowired
     private LhvConnectApi lhvConnectApi;
     @Autowired
@@ -44,10 +46,10 @@ public class LhvConnectServiceImpl implements LhvConnectService {
     public void postAccountStatementRequest() {
         Calendar calendar = Calendar.getInstance();
         Date toDate = calendar.getTime();
-        calendar.add(Calendar.DATE, -7); // TODO hard-coded period "last 7 days", start using latest balance.synced_to_date or if null, 2017-03-18 (account creation time)
+        calendar.add(Calendar.DATE, -365); // TODO hard-coded period "last 365 days", start using latest balance.synced_to_date or if null, 2017-03-18 (account creation time)
         Date fromDate = calendar.getTime();
 
-        postAccountStatementPeriod(lhvReserveIban, fromDate, toDate);
+        postAccountStatementPeriod(lhvGatewayIban, fromDate, toDate);
     }
 
     @Override

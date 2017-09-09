@@ -1,7 +1,5 @@
 package eu.cryptoeuro.bankgateway.config;
 
-import java.io.File;
-
 import javax.net.ssl.SSLContext;
 
 import org.apache.commons.lang3.StringUtils;
@@ -12,10 +10,13 @@ import org.apache.http.ssl.SSLContexts;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.ws.transport.http.HttpComponentsMessageSender;
 
 import eu.cryptoeuro.bankgateway.services.lhv.LhvConnectApi;
 import eu.cryptoeuro.bankgateway.services.lhv.LhvConnectApiImpl;
+
+import java.net.URL;
 
 /**
  * Spring configuration: service layer
@@ -25,8 +26,8 @@ import eu.cryptoeuro.bankgateway.services.lhv.LhvConnectApiImpl;
 @Configuration
 public class ServiceConfig {
 
-    @Value("${lhv.connect.keyStore.path}")
-    private String lhvConnectKeyStorePath;
+    @Value("${lhv.connect.keyStore.URL}")
+    private String lhvConnectKeyStoreURL;
     @Value("${lhv.connect.keyStore.password}")
     private String lhvConnectKeyStorePassword;
 
@@ -34,7 +35,7 @@ public class ServiceConfig {
     public LhvConnectApi lhvConnect() throws Exception {
         CloseableHttpClient lhvHttpClient = null;
 
-        if (StringUtils.isNotBlank(lhvConnectKeyStorePath) && StringUtils.isNotBlank(lhvConnectKeyStorePassword)) {
+        if (StringUtils.isNotBlank(lhvConnectKeyStoreURL) && StringUtils.isNotBlank(lhvConnectKeyStorePassword)) {
             lhvHttpClient = HttpClients.custom()
                     .addInterceptorFirst(new HttpComponentsMessageSender.RemoveSoapHeadersInterceptor())
                     .setSSLSocketFactory(new SSLConnectionSocketFactory(createSslContext()))
@@ -49,10 +50,9 @@ public class ServiceConfig {
     private SSLContext createSslContext() {
         SSLContext sslContext;
         try {
-            File keystore = new File(lhvConnectKeyStorePath);
             char[] password = lhvConnectKeyStorePassword.toCharArray();
             sslContext = SSLContexts.custom()
-                    .loadKeyMaterial(keystore, password, password)
+                    .loadKeyMaterial(new URL(lhvConnectKeyStoreURL), password, password)
                     .build();
         } catch (RuntimeException e) {
             throw e;
