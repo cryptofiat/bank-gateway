@@ -1,5 +1,6 @@
 .gradle
 build/
+out/
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -25,3 +26,6 @@ gradle-app.setting
 .idea
 
 .DS_Store
+
+#this may NOT be committed
+src/main/resources/lhv.jks
