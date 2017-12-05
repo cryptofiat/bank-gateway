@@ -1,3 +1,6 @@
+group 'ee.euro2'
+version '0.0.1-SNAPSHOT'
+
 apply plugin: 'rebel'
 
 buildscript {
@@ -17,6 +20,9 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'spring-boot'
+apply plugin: 'signing'
+apply plugin: 'maven-publish'
+
 
 bootRun {
     // support passing -Dsystem.property=value to bootRun task
@@ -36,7 +42,30 @@ repositories {
 	mavenCentral()
 	maven { url "https://repo.spring.io/snapshot" }
 	maven { url "https://repo.spring.io/milestone" }
+	maven { url "https://oss.sonatype.org/content/groups/staging" }
+	maven { url "http://dl.bintray.com/ethereum/maven" }
+
 }
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			from components.java
+		}
+	}
+	repositories {
+//        mavenLocal()
+		maven {
+			def repoUrl = project.version.endsWith('-SNAPSHOT') ? "https://oss.sonatype.org/content/repositories/snapshots" : "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+			url repoUrl
+			credentials {
+				username "${System.env.OSSRH_USERNAME}"
+				password "${System.env.OSSRH_PASSWORD}"
+			}
+		}
+	}
+}
+
 
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter-actuator')
@@ -55,6 +84,7 @@ dependencies {
 	compile('org.liquibase:liquibase-core:3.3.5')
 	compile('org.apache.commons:commons-lang3:3.5')
 	compile('org.apache.commons:commons-collections4:4.1')
+	compile('ee.euro2:wallet-server-client:0.0.2-SNAPSHOT')
 
 	runtime('org.postgresql:postgresql:9.4.1212')
 
