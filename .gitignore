@@ -29,3 +29,4 @@ gradle-app.setting
 
 #this may NOT be committed
 src/main/resources/lhv.jks
+lhv.jks
