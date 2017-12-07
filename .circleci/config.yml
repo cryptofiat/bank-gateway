@@ -1,12 +1,8 @@
-defaults: &defaults
-  working_directory: ~/build
-  docker:
-    - image: circleci/java:8-jdk
-
 version: 2
 jobs:
   build:
-    <<: *defaults
+    docker:
+      - image: circleci/java:8-jdk
     steps:
       - checkout
       - restore_cache:
@@ -21,35 +17,7 @@ jobs:
 
       - run: gradle test
 
-  publish:
-    <<: *defaults
-    steps:
-      - checkout
-      - restore_cache:
-          key: cache-{{ checksum "build.gradle" }}
       - run: gradle build
-      - run: gradle publish
 
-  deploy:
-    <<: *defaults
-    steps:
-      - deploy: gradle deploy-latest
-
-workflows:
-  version: 2
-  build-publish-deploy:
-    jobs:
-      - build
-      - publish:
-          requires:
-            - build
-          filters:
-            branches:
-              only: master
-      - wait_for_approval:
-          type: approval
-          requires:
-            - publish
-      - deploy:
-          requires:
-            - wait_for_approval
+      - store_artifacts:
+          path: build/libs
