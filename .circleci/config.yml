@@ -20,5 +20,5 @@ jobs:
       - run: gradle build
 
       - store_artifacts:
-          path: build/libs/*.jar
+          path: build/libs
           destination: jar
