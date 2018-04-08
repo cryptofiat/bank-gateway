@@ -17,4 +17,4 @@ This includes
 
 ## production environment
 
-Gateway is accessible at http://wallet.euro2.ee:9001
+Gateway is accessible at https://teller.euro2.ee
