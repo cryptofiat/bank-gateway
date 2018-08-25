@@ -20,7 +20,8 @@ ethereum:
   node:
     url: http://big-parity.euro2.ee:8545
 
-reserveBank.ethereum.address: 833898875A12A3D61ef18dC3d2B475c7Ca3A4A72
+reserveBank.ethereum:
+  address: 833898875A12A3D61ef18dC3d2B475c7Ca3A4A72
 
 ---
 spring:

@@ -11,10 +11,18 @@ Bank gateway handles communication between the reserve (kept in LHV) and the cry
 This includes
 * updating total reserve amount from uploaded statement files
 * parsing transactions from uploaded statement files
-* (TODO) live integration with LHV API
+* live integration with LHV API
 * (TODO) putting cryptocurrency on people's accounts from gateway account
 * (TODO) handling crypto->fiat payouts
 
 ## production environment
 
+Default location for LHV keystore is `lhv.jks` in working directory.
+Default location for reserve bank Ethereum private key is `.reserve.key` in home folder.
+
+The config params / system properties for overriding default locations are, respectively:
+* `lhv.connect.keyStore.path`
+* `reserveBank.ethereum.keyFile`
+
 Gateway is accessible at https://teller.euro2.ee
+

@@ -2,6 +2,7 @@ package eu.cryptoeuro.bankgateway;
 
 import org.ethereum.crypto.ECKey;
 import org.spongycastle.util.encoders.Hex;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -12,6 +13,8 @@ import java.util.Scanner;
 
 @Component
 public class KeyUtil {
+    @Value("${reserveBank.ethereum.keyFile:#{systemProperties['user.home'] + '/.reserve.key'}}")
+    private String reserveBankKeyFile;
 
     public ECKey getReserveKey() {
         return ECKey.fromPrivate(Hex.decode(getReserveKeyInHex()));
