@@ -36,6 +36,6 @@ jobs:
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no bank-gateway@bank-gateway.euro2.ee /bin/mkdir /opt/bank-gateway/builds/"${CIRCLE_BUILD_NUM}"
               scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -r  build/libs/* bank-gateway@bank-gateway.euro2.ee:/opt/bank-gateway/builds/"${CIRCLE_BUILD_NUM}"/
-              echo "cd /opt/bank-gateway && /bin/ln -sf builds/34/*.jar bank-gateway-latest.jar" | ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no bank-gateway@bank-gateway.euro2.ee
+              echo "cd /opt/bank-gateway && /bin/ln -sf builds/"${CIRCLE_BUILD_NUM}"/*.jar bank-gateway-latest.jar" | ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no bank-gateway@bank-gateway.euro2.ee
               ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no bank-gateway@bank-gateway.euro2.ee sudo /bin/systemctl restart bank-gateway
             fi
