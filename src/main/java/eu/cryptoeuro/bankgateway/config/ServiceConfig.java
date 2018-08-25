@@ -10,13 +10,12 @@ import org.apache.http.ssl.SSLContexts;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.ws.transport.http.HttpComponentsMessageSender;
 
 import eu.cryptoeuro.bankgateway.services.lhv.LhvConnectApi;
 import eu.cryptoeuro.bankgateway.services.lhv.LhvConnectApiImpl;
 
-import java.net.URL;
+import java.io.File;
 
 /**
  * Spring configuration: service layer
@@ -26,16 +25,16 @@ import java.net.URL;
 @Configuration
 public class ServiceConfig {
 
-    @Value("${lhv.connect.keyStore.URL}")
-    private String lhvConnectKeyStoreURL;
+    @Value("${lhv.connect.keyStore.path}")
+    private String lhvConnectKeyStorePath;
     @Value("${lhv.connect.keyStore.password}")
     private String lhvConnectKeyStorePassword;
 
     @Bean
-    public LhvConnectApi lhvConnect() throws Exception {
+    public LhvConnectApi lhvConnect() {
         CloseableHttpClient lhvHttpClient = null;
 
-        if (StringUtils.isNotBlank(lhvConnectKeyStoreURL) && StringUtils.isNotBlank(lhvConnectKeyStorePassword)) {
+        if (StringUtils.isNotBlank(lhvConnectKeyStorePath) && StringUtils.isNotBlank(lhvConnectKeyStorePassword)) {
             lhvHttpClient = HttpClients.custom()
                     .addInterceptorFirst(new HttpComponentsMessageSender.RemoveSoapHeadersInterceptor())
                     .setSSLSocketFactory(new SSLConnectionSocketFactory(createSslContext()))
@@ -52,7 +51,7 @@ public class ServiceConfig {
         try {
             char[] password = lhvConnectKeyStorePassword.toCharArray();
             sslContext = SSLContexts.custom()
-                    .loadKeyMaterial(new URL(lhvConnectKeyStoreURL), password, password)
+                    .loadKeyMaterial(new File(lhvConnectKeyStorePath), password, password)
                     .build();
         } catch (RuntimeException e) {
             throw e;

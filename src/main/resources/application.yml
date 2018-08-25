@@ -3,7 +3,7 @@ lhv.gateway.iban: EE697700771002504626
 
 lhv:
   connect.keyStore:
-    URL: file:./lhv.jks
+    path: ./lhv.jks
     password: letmein
     
 database: 
