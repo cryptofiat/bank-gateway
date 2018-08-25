@@ -1,0 +1,12 @@
+version: '3.1'
+
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: gateway
+      POSTGRES_USER: gateway
+    ports:
+    - "54321:5432"
+
