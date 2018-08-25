@@ -10,7 +10,6 @@ database:
   url: jdbc:postgresql://localhost:5432/gateway
   username: lhv_gateway
   password:
-  schema: lhv
 
 slack.webhook.reserve.url: https://hooks.slack.com/services/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
 
