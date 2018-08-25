@@ -15,3 +15,14 @@ database:
 slack.webhook.reserve.url: https://hooks.slack.com/services/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
 
 reserveBank.ethereum.address: 0x833898875A12A3D61ef18dC3d2B475c7Ca3A4A72
+
+---
+spring:
+  profiles: dev
+database:
+  url: jdbc:postgresql://localhost:54321/gateway
+  username: gateway
+  password:
+  schema:
+
+
