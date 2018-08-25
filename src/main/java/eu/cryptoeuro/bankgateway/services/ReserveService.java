@@ -2,121 +2,67 @@ package eu.cryptoeuro.bankgateway.services;
 
 import eu.cryptoeuro.bankgateway.KeyUtil;
 import eu.cryptoeuro.bankgateway.services.transaction.model.Transaction;
+import eu.cryptoeuro.contract.Contracts;
 import eu.cryptoeuro.service.BaseService;
-import eu.cryptoeuro.service.GasPriceService;
-import eu.cryptoeuro.service.HashUtils;
-import eu.cryptoeuro.service.rpc.EthereumRpcMethod;
-import eu.cryptoeuro.service.rpc.JsonRpcCall;
-import eu.cryptoeuro.service.rpc.JsonRpcStringResponse;
-import eu.cryptoeuro.transferInfo.service.TransferInfoService;
-import eu.cryptoeuro.wallet.client.WalletClientService;
-import eu.cryptoeuro.wallet.client.response.ContractInfo;
 import eu.cryptoeuro.wallet.client.response.SupplyIncrease;
-import eu.cryptoeuro.wallet.client.service.WalletServerService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.ethereum.core.CallTransaction;
-import org.ethereum.crypto.ECKey;
-import org.ethereum.util.ByteUtil;
-import org.spongycastle.util.encoders.Hex;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.web3j.crypto.Credentials;
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.Web3jService;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.protocol.http.HttpService;
+import org.web3j.utils.Convert;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
+import java.math.BigInteger;
 
 @Service
 @Slf4j
 @Transactional(rollbackFor = Exception.class)
 public class ReserveService extends BaseService implements InitializingBean {
     public static final int GAS_LIMIT = 350000;
+    public static final int GAS_PRICE = 3;
 
-    @Autowired
-    private WalletClientService walletClientService;
-    @Autowired
-    private AccountIdentityService accountIdentityService;
-    @Autowired
-    private WalletServerService walletServerService;
-    @Autowired
-    private TransferInfoService transferInfoService;
     @Autowired
     private KeyUtil keyUtil;
-    @Autowired
-    private GasPriceService gasPriceService;
     @Value("${reserveBank.ethereum.address}")
     private String reserveBankAccountAddress;
-
-    private ContractInfo contractInfo;
-
-    private static CallTransaction.Function increaseSupplyFunction = CallTransaction.Function.fromSignature("increaseSupply", "uint256");
+    @Value("${ethereum.node.url}")
+    private String ethereumNodeUrl;
+    private Contracts contracts;
 
     @Override
-    public void afterPropertiesSet() {
-        contractInfo = walletServerService.getContractInfo();
+    public void afterPropertiesSet() throws Exception {
+        Web3jService w3j = new HttpService(ethereumNodeUrl);
+        Web3j web3j = Web3j.build(w3j);
+
+        try {
+            System.out.println(web3j.web3ClientVersion().send().getWeb3ClientVersion());
+            Contracts.GasLimit = BigInteger.valueOf(GAS_LIMIT);
+            Contracts.GasPrice = Convert.toWei(BigDecimal.valueOf(GAS_PRICE), Convert.Unit.GWEI).toBigInteger();
+            contracts = Contracts.load(web3j, Credentials.create(keyUtil.getReserveKeyInHex()));
+
+        } catch (Exception e) {
+            log.error("Error bootstrapping Ethereum integration", e);
+            throw e;
+        }
     }
 
     public SupplyIncrease increaseSupply(Transaction transaction) throws Exception {
-        Long longAmountInCents = transaction.getAmount().multiply(new BigDecimal(100)).longValue();
-        ECKey reserveKey = keyUtil.getReserveKey();
-        byte[] callData = increaseSupplyFunction.encode(longAmountInCents);
-
-        String txHash = sendRawTransaction(reserveKey, callData);
-        if (StringUtils.isBlank(txHash)) {
-            throw new Exception("Transaction hash empty, probable nonce issue");
-        }
+        BigInteger amountInCents = transaction.getAmount().multiply(new BigDecimal(100)).toBigInteger();
+        TransactionReceipt receipt = contracts.reserve.increaseSupply(amountInCents).send();
 
         SupplyIncrease result = new SupplyIncrease();
-        result.setId(txHash);
-        result.setAmount(transaction.getAmount().longValue());
-        log.info("Increased supply: " + result);
-        ;
+        result.setId(receipt.getBlockHash());
+        result.setAmount(amountInCents.longValue());
+
+        log.info("Added " + amountInCents + " cents to supply. Transaction hash: " + receipt.getBlockHash());
+
         return result;
-    }
-
-    private String sendRawTransaction(ECKey signer, byte[] callData) {
-        long nextNonce = getNextNonce(HashUtils.with0x(reserveBankAccountAddress));
-        byte[] nonce = ByteUtil.longToBytesNoLeadZeroes(nextNonce);
-        long gasPriceWei = gasPriceService.getGasPriceInWei();
-        byte[] gasPrice = ByteUtil.longToBytesNoLeadZeroes(gasPriceWei);
-        byte[] gasLimit = ByteUtil.longToBytesNoLeadZeroes(GAS_LIMIT);
-        byte[] toAddress = Hex.decode(HashUtils.without0x(contractInfo.reserveBank));
-
-        org.ethereum.core.Transaction transaction = new org.ethereum.core.Transaction(nonce, gasPrice, gasLimit, toAddress, null, callData);
-        transaction.sign(signer);
-        String params = HashUtils.hex(transaction.getEncoded());
-
-        JsonRpcCall call = new JsonRpcCall(EthereumRpcMethod.sendRawTransaction, Arrays.asList(params));
-        log.info("JSON:\n" + call.toString());
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
-        HttpEntity<String> request = new HttpEntity<>(call.toString(), headers);
-
-        JsonRpcStringResponse response = restTemplate.postForObject(URL, request, JsonRpcStringResponse.class);
-        String txHash = response.getResult();
-        log.info("Received transaction response: " + txHash);
-
-        return txHash;
-    }
-
-    private long getNextNonce(String account) {
-        JsonRpcCall call = new JsonRpcCall(EthereumRpcMethod.nextNonce, Arrays.asList(account));
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
-        HttpEntity<String> request = new HttpEntity<>(call.toString(), headers);
-
-        JsonRpcStringResponse response = restTemplate.postForObject(URL, request, JsonRpcStringResponse.class);
-        String result = response.getResult();
-        long responseToLong = Long.parseLong(HashUtils.without0x(result), 16);
-        log.info("Next nonce for " + account + ": " + responseToLong);
-
-        return responseToLong;
     }
 }

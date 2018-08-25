@@ -85,6 +85,7 @@ dependencies {
 	compile('org.apache.commons:commons-collections4:4.1')
 	compile('org.bouncycastle:bcprov-jdk15on:1.54')
 	compile('ee.euro2:wallet-server-client:0.0.2-SNAPSHOT')
+	compile('ee.euro2:contract-java-abi:0.0.1-SNAPSHOT')
 
 	runtime('org.postgresql:postgresql:9.4.1212')
 

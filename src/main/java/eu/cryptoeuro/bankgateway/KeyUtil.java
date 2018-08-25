@@ -13,11 +13,14 @@ import java.util.Scanner;
 @Component
 public class KeyUtil {
 
-    public ECKey getReserveKey () {
-        File file = new File(System.getProperty("user.home"),".reserve.key");
+    public ECKey getReserveKey() {
+        return ECKey.fromPrivate(Hex.decode(getReserveKeyInHex()));
+    }
+
+    public String getReserveKeyInHex() {
+        File file = new File(System.getProperty("user.home"), ".reserve.key");
         try {
-            String keyHex = toString(new FileInputStream(file));
-            return ECKey.fromPrivate(Hex.decode(keyHex));
+            return toString(new FileInputStream(file));
         } catch (IOException e) {
             throw new RuntimeException("Cannot load reserve account key. Make sure " + file.toString() + " exists and contains private key in hex format.\n" + e.toString());
         }
@@ -25,7 +28,7 @@ public class KeyUtil {
 
     private String toString(InputStream stream) throws IOException {
         try (InputStream is = stream) {
-            return new Scanner(is).useDelimiter("\\A").next();
+            return new Scanner(is).useDelimiter("\\A").next().trim();
         }
     }
 }

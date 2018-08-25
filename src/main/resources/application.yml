@@ -32,4 +32,5 @@ database:
   schema:
 wallet.server.url: http://localhost:8082
 
-
+# uncomment below, if you need to debug web3j:
+#logging.level.org.web3j: DEBUG
