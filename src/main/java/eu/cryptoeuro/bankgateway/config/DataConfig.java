@@ -76,11 +76,11 @@ public class DataConfig {
         liquibase.setDataSource(dataSource());
         liquibase.setChangeLog("classpath:liquibase/changelog.xml");
         // this works only with XML type changesets
-        liquibase.setDefaultSchema(schema);
+        //liquibase.setDefaultSchema(schema);
         // this is needed for SQL type changesets
-        Map<String, String> changeLogParameters = new HashMap<>();
-        changeLogParameters.put("schemaName", schema);
-        liquibase.setChangeLogParameters(changeLogParameters);
+        //Map<String, String> changeLogParameters = new HashMap<>();
+        //changeLogParameters.put("schemaName", schema);
+        //liquibase.setChangeLogParameters(changeLogParameters);
         return liquibase;
     }
 
