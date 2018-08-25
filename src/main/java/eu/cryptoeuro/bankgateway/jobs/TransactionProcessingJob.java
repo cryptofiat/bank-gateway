@@ -56,14 +56,19 @@ public class TransactionProcessingJob {
                 sendSlackNotification(transaction, "LHV reserve account has a new transaction.");
                 transaction.setProcessingStatus(Transaction.ProcessingStatus.NOTIFIED);
             }
-
             if (Transaction.ProcessingStatus.NOTIFIED.equals(transaction.getProcessingStatus())) {
-                reserveService.increaseSupplyAndCreditRecipient(transaction);
-
-                sendSlackNotification(transaction, "Added to total reserve.");
+                try {
+                    reserveService.increaseSupply(transaction);
+                    sendSlackNotification(transaction, "Added to total reserve.");
+                    transaction.setProcessingStatus(Transaction.ProcessingStatus.SUPPLY_INCREASED);
+                } catch (Exception e) {
+                    log.error("Error processing transaction " + transaction, e);
+                }
                 sendSlackNotification(transaction, "Transferred from reserve to account.");
             }
-
+            if (Transaction.ProcessingStatus.SUPPLY_INCREASED.equals(transaction.getProcessingStatus())) {
+                // TODO
+            }
             // update status in DB
             transactionService.updateProcessingStatus(transaction.getId(), transaction.getProcessingStatus());
         }
@@ -74,21 +79,25 @@ public class TransactionProcessingJob {
 
 
     private void sendSlackNotification(Transaction transaction, String text) {
-        // send a Slack notification
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        List<Field> fields = new ArrayList<>();
-        fields.add(new Field("Tx id", transaction.getId().toString(), true));
-        fields.add(new Field("Tx date", format.format(transaction.getBookingDate()), true));
-        fields.add(new Field("Debtor name", StringUtils.defaultIfBlank(transaction.getUltimateDebtorName(), transaction.getDebtorName()), true));
-        fields.add(new Field("Amount", String.valueOf(transaction.getAmountSigned()) + " " + transaction.getCurrency(), true));
-        fields.add(new Field("Description", transaction.getRemittanceInformation(), false));
-        Attachment attachment = new Attachment();
-        attachment.setColor("#00f4a3");
-        attachment.setFields(fields.toArray(new Field[fields.size()]));
-        Message msg = new Message();
-        msg.setText(text);
-        msg.setAttachments(new Attachment[] {attachment});
-        slackService.sendReserveMessage(msg);
+        try {
+            // send a Slack notification
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            List<Field> fields = new ArrayList<>();
+            fields.add(new Field("Tx id", transaction.getId().toString(), true));
+            fields.add(new Field("Tx date", format.format(transaction.getBookingDate()), true));
+            fields.add(new Field("Debtor name", StringUtils.defaultIfBlank(transaction.getUltimateDebtorName(), transaction.getDebtorName()), true));
+            fields.add(new Field("Amount", String.valueOf(transaction.getAmountSigned()) + " " + transaction.getCurrency(), true));
+            fields.add(new Field("Description", transaction.getRemittanceInformation(), false));
+            Attachment attachment = new Attachment();
+            attachment.setColor("#00f4a3");
+            attachment.setFields(fields.toArray(new Field[fields.size()]));
+            Message msg = new Message();
+            msg.setText(text);
+            msg.setAttachments(new Attachment[]{attachment});
+            slackService.sendReserveMessage(msg);
+        } catch (Exception e) {
+            log.error("Couldn't send Slack update", e);
+        }
     }
 
 }

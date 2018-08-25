@@ -140,6 +140,8 @@ public class Transaction implements Serializable {
     public interface ProcessingStatus {
         String NEW = "NEW";
         String NOTIFIED = "NOTIFIED";
+        String SUPPLY_INCREASED = "SUPPLY_INCREASED";
+        String USER_CREDITED = "USER_CREDITED";
     }
 
     public interface Source {

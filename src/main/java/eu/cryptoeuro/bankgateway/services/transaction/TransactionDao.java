@@ -33,8 +33,8 @@ public class TransactionDao extends AbstractDao {
     }
 
     public List<Transaction> findUnprocessed() {
-        String sql = "SELECT * FROM transaction WHERE processing_status IN (:processingStatus) ORDER BY id";
-        AdvancedParameterSource source = new AdvancedParameterSource().addValue("processingStatus", Arrays.asList(Transaction.ProcessingStatus.NEW));
+        String sql = "SELECT * FROM transaction WHERE processing_status NOT IN (:processingStatus) ORDER BY id";
+        AdvancedParameterSource source = new AdvancedParameterSource().addValue("processingStatus", Arrays.asList(Transaction.ProcessingStatus.USER_CREDITED));
         return getNamedParameterJdbcTemplate().query(sql, source, TransactionRowMapper.INSTANCE);
     }
 

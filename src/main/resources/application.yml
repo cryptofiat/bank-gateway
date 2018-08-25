@@ -14,7 +14,13 @@ database:
 
 slack.webhook.reserve.url: https://hooks.slack.com/services/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
 
-reserveBank.ethereum.address: 0x833898875A12A3D61ef18dC3d2B475c7Ca3A4A72
+wallet.server.url: http://wallet.euro2.ee:8080
+
+ethereum:
+  node:
+    url: http://big-parity.euro2.ee:8545
+
+reserveBank.ethereum.address: 833898875A12A3D61ef18dC3d2B475c7Ca3A4A72
 
 ---
 spring:
@@ -24,5 +30,6 @@ database:
   username: gateway
   password:
   schema:
+wallet.server.url: http://localhost:8082
 
 
