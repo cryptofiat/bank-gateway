@@ -30,8 +30,6 @@ public class DataConfig {
     private String databaseUsername;
     @Value("${database.password}")
     private String databasePassword;
-    @Value("${database.schema}")
-    private String schema;
 
     @Bean(name = "dataSource", destroyMethod = "close")
     public DataSource dataSource() {
