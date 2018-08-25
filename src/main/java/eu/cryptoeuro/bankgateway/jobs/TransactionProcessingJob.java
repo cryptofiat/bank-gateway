@@ -1,5 +1,7 @@
 package eu.cryptoeuro.bankgateway.jobs;
 
+import eu.cryptoeuro.accountIdentity.response.Account;
+import eu.cryptoeuro.bankgateway.services.AccountIdentityService;
 import eu.cryptoeuro.bankgateway.services.ReserveService;
 import eu.cryptoeuro.bankgateway.services.slack.SlackService;
 import eu.cryptoeuro.bankgateway.services.slack.json.Attachment;
@@ -7,6 +9,9 @@ import eu.cryptoeuro.bankgateway.services.slack.json.Field;
 import eu.cryptoeuro.bankgateway.services.slack.json.Message;
 import eu.cryptoeuro.bankgateway.services.transaction.TransactionService;
 import eu.cryptoeuro.bankgateway.services.transaction.model.Transaction;
+import eu.cryptoeuro.service.HashUtils;
+import eu.cryptoeuro.transferInfo.command.TransferInfoRecord;
+import eu.cryptoeuro.transferInfo.service.TransferInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +32,10 @@ public class TransactionProcessingJob {
     private TransactionService transactionService;
     @Autowired
     private ReserveService reserveService;
+    @Autowired
+    private AccountIdentityService accountIdentityService;
+    @Autowired
+    private TransferInfoService transferInfoService;
 
     @Scheduled(cron = "0 */5 * * * *")
     public void processTransactions() {
@@ -49,10 +58,18 @@ public class TransactionProcessingJob {
                 } catch (Exception e) {
                     log.error("Error processing transaction " + transaction, e);
                 }
-                sendSlackNotification(transaction, "Transferred from reserve to account.");
             }
             if (Transaction.ProcessingStatus.SUPPLY_INCREASED.equals(transaction.getProcessingStatus())) {
-                // TODO
+                Account recipientAccount = accountIdentityService.getAddress(transaction.getDebtorId());
+                try {
+                    String txHash = reserveService.creditAccount(transaction, recipientAccount);
+                    sendSlackNotification(transaction, "Transferred from reserve to account.");
+                    transaction.setProcessingStatus(Transaction.ProcessingStatus.USER_CREDITED);
+                    transferInfoService.send(HashUtils.without0x(txHash), new TransferInfoRecord(transaction.getDebtorId(), transaction.getDebtorId(), transaction.getDebtorAccountIban() + " " + transaction.getRemittanceInformation()));
+                } catch (Exception e) {
+                    log.error("Error processing transaction " + transaction, e);
+                }
+
             }
             // update status in DB
             transactionService.updateProcessingStatus(transaction.getId(), transaction.getProcessingStatus());

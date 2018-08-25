@@ -2,6 +2,7 @@ package eu.cryptoeuro.bankgateway.services.transaction.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Date;
 
 import lombok.EqualsAndHashCode;
@@ -104,6 +105,10 @@ public class Transaction implements Serializable {
             return getAmount().negate();
         }
         return getAmount();
+    }
+
+    public BigInteger getAmountInCents() {
+        return getAmount().multiply(new BigDecimal(100)).toBigInteger();
     }
 
     public static String getTransactionClassification(String domain, String family, String subFamily, String importSource) {

@@ -1,5 +1,6 @@
 package eu.cryptoeuro.bankgateway.services;
 
+import eu.cryptoeuro.accountIdentity.response.Account;
 import eu.cryptoeuro.bankgateway.KeyUtil;
 import eu.cryptoeuro.bankgateway.services.transaction.TransactionEthMappingService;
 import eu.cryptoeuro.bankgateway.services.transaction.model.Transaction;
@@ -39,7 +40,6 @@ public class ReserveService extends BaseService implements InitializingBean {
     @Value("${ethereum.node.url}")
     private String ethereumNodeUrl;
 
-
     private Contracts contracts;
 
     @Override
@@ -60,14 +60,22 @@ public class ReserveService extends BaseService implements InitializingBean {
     }
 
     public String increaseSupply(final Transaction transaction) throws Exception {
-        BigInteger amountInCents = transaction.getAmount().multiply(new BigDecimal(100)).toBigInteger();
-
         contracts.transactionManager.onceBeforeWait = (EthSendTransaction tx) -> {
             log.info("Increasing supply for bank transaction " + transaction.getId() + ", txHash=" + tx.getTransactionHash());
             ethMappingService.setSupplyIncreaseTxHash(transaction.getId(), tx.getTransactionHash());
         };
-        TransactionReceipt receipt = contracts.reserve.increaseSupply(amountInCents).send();
+        TransactionReceipt receipt = contracts.reserve.increaseSupply(transaction.getAmountInCents()).send();
         return receipt.getTransactionHash();
 
+    }
+
+    public String creditAccount(final Transaction transaction, Account recipientAccount) throws Exception {
+        contracts.transactionManager.onceBeforeWait = (EthSendTransaction tx) -> {
+            log.info("Crediting recipient account for bank transaction " + transaction.getId() + ", txHash=" + tx.getTransactionHash());
+            ethMappingService.setAccountCreditTxHash(transaction.getId(), tx.getTransactionHash());
+        };
+
+        TransactionReceipt receipt = contracts.accounts.transfer(recipientAccount.getAddress(), transaction.getAmountInCents()).send();
+        return receipt.getTransactionHash();
     }
 }
