@@ -1,36 +1,21 @@
 package eu.cryptoeuro.bankgateway.jobs;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-
-import eu.cryptoeuro.accountIdentity.response.Account;
-import eu.cryptoeuro.bankgateway.KeyUtil;
-import eu.cryptoeuro.bankgateway.services.AccountIdentityService;
 import eu.cryptoeuro.bankgateway.services.ReserveService;
-import eu.cryptoeuro.transferInfo.command.TransferInfoRecord;
-import eu.cryptoeuro.transferInfo.service.TransferInfoService;
-import eu.cryptoeuro.wallet.client.CreateTransferCommand;
-import eu.cryptoeuro.wallet.client.FeeConstant;
-import eu.cryptoeuro.wallet.client.WalletClientService;
-import eu.cryptoeuro.wallet.client.response.ContractInfo;
-import eu.cryptoeuro.wallet.client.response.Transfer;
-import eu.cryptoeuro.wallet.client.service.WalletServerService;
-import lombok.extern.slf4j.Slf4j;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-
 import eu.cryptoeuro.bankgateway.services.slack.SlackService;
 import eu.cryptoeuro.bankgateway.services.slack.json.Attachment;
 import eu.cryptoeuro.bankgateway.services.slack.json.Field;
 import eu.cryptoeuro.bankgateway.services.slack.json.Message;
 import eu.cryptoeuro.bankgateway.services.transaction.TransactionService;
 import eu.cryptoeuro.bankgateway.services.transaction.model.Transaction;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -75,7 +60,6 @@ public class TransactionProcessingJob {
 
         log.info("Completed processing of transactions");
     }
-
 
 
     private void sendSlackNotification(Transaction transaction, String text) {

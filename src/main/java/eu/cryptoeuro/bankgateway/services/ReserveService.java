@@ -4,7 +4,6 @@ import eu.cryptoeuro.bankgateway.KeyUtil;
 import eu.cryptoeuro.bankgateway.services.transaction.model.Transaction;
 import eu.cryptoeuro.contract.Contracts;
 import eu.cryptoeuro.service.BaseService;
-import eu.cryptoeuro.wallet.client.response.SupplyIncrease;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,16 +52,11 @@ public class ReserveService extends BaseService implements InitializingBean {
         }
     }
 
-    public SupplyIncrease increaseSupply(Transaction transaction) throws Exception {
+    public void increaseSupply(Transaction transaction) throws Exception {
         BigInteger amountInCents = transaction.getAmount().multiply(new BigDecimal(100)).toBigInteger();
         TransactionReceipt receipt = contracts.reserve.increaseSupply(amountInCents).send();
 
-        SupplyIncrease result = new SupplyIncrease();
-        result.setId(receipt.getBlockHash());
-        result.setAmount(amountInCents.longValue());
-
         log.info("Added " + amountInCents + " cents to supply. Transaction hash: " + receipt.getBlockHash());
 
-        return result;
     }
 }
