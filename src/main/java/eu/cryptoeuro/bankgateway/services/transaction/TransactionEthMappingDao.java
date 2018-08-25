@@ -22,7 +22,7 @@ public class TransactionEthMappingDao extends AbstractDao {
                 + "(:transactionId, :supplyIncreaseTxHash, :accountCreditTxHash) "
                 + "ON CONFLICT (transaction_id) "
                 + "DO UPDATE SET "
-                + "supply_increase_txhash = :supplyIncreaseTxHash "
+                + "supply_increase_txhash = :supplyIncreaseTxHash, "
                 + "account_credit_txhash = :accountCreditTxHash;";
 
         AdvancedParameterSource source = new AdvancedParameterSource().addBean(transactionEthMapping);

@@ -2,6 +2,7 @@ package eu.cryptoeuro.bankgateway.services.transaction;
 
 import eu.cryptoeuro.bankgateway.services.transaction.model.TransactionEthMapping;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -22,10 +23,16 @@ public class TransactionEthMappingService {
     }
 
     private TransactionEthMapping findOrCreateTransactionEthMapping(long transactionId) {
-        TransactionEthMapping transactionEthMapping = transactionEthMappingDao.findByTransactionId(transactionId);
-        if (transactionEthMapping == null) {
-            transactionEthMapping = new TransactionEthMapping();
-            transactionEthMapping.setTransactionId(transactionId);
+        TransactionEthMapping transactionEthMapping = null;
+        try {
+            transactionEthMapping = transactionEthMappingDao.findByTransactionId(transactionId);
+        } catch (IncorrectResultSizeDataAccessException e) {
+            if (e.getActualSize() > 1) {
+                throw e;
+            } else {
+                transactionEthMapping = new TransactionEthMapping();
+                transactionEthMapping.setTransactionId(transactionId);
+            }
         }
         return transactionEthMapping;
     }

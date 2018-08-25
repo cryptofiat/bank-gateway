@@ -103,4 +103,11 @@
     <changeSet id="5" author="AlvarL">
         <addUniqueConstraint tableName="transaction_eth_mapping" columnNames="transaction_id"/>
     </changeSet>
+
+    <changeSet id="6" author="AlvarL">
+        <modifyDataType tableName="transaction_eth_mapping" columnName="supply_increase_txhash"
+                        newDataType="varchar(128)"/>
+        <modifyDataType tableName="transaction_eth_mapping" columnName="account_credit_txhash"
+                        newDataType="varchar(128)"/>
+    </changeSet>
 </databaseChangeLog>

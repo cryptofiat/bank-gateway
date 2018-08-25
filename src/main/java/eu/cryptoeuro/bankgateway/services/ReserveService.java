@@ -1,6 +1,7 @@
 package eu.cryptoeuro.bankgateway.services;
 
 import eu.cryptoeuro.bankgateway.KeyUtil;
+import eu.cryptoeuro.bankgateway.services.transaction.TransactionEthMappingService;
 import eu.cryptoeuro.bankgateway.services.transaction.model.Transaction;
 import eu.cryptoeuro.contract.Contracts;
 import eu.cryptoeuro.service.BaseService;
@@ -13,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.Web3jService;
-import org.web3j.protocol.core.RemoteCall;
+import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.utils.Convert;
@@ -30,10 +31,15 @@ public class ReserveService extends BaseService implements InitializingBean {
 
     @Autowired
     private KeyUtil keyUtil;
+    @Autowired
+    private TransactionEthMappingService ethMappingService;
+
     @Value("${reserveBank.ethereum.address}")
     private String reserveBankAccountAddress;
     @Value("${ethereum.node.url}")
     private String ethereumNodeUrl;
+
+
     private Contracts contracts;
 
     @Override
@@ -53,11 +59,15 @@ public class ReserveService extends BaseService implements InitializingBean {
         }
     }
 
-    public String increaseSupply(Transaction transaction) throws Exception {
+    public String increaseSupply(final Transaction transaction) throws Exception {
         BigInteger amountInCents = transaction.getAmount().multiply(new BigDecimal(100)).toBigInteger();
+
+        contracts.transactionManager.onceBeforeWait = (EthSendTransaction tx) -> {
+            log.info("Increasing supply for bank transaction " + transaction.getId() + ", txHash=" + tx.getTransactionHash());
+            ethMappingService.setSupplyIncreaseTxHash(transaction.getId(), tx.getTransactionHash());
+        };
         TransactionReceipt receipt = contracts.reserve.increaseSupply(amountInCents).send();
-        // todo return transaction hash to poll for status later
-        return null;
+        return receipt.getTransactionHash();
 
     }
 }
