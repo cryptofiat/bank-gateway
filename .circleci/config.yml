@@ -3,8 +3,16 @@ jobs:
   build:
     docker:
       - image: circleci/java:8-jdk
+
+    working_directory: ~/repo
+
+    environment:
+      JVM_OPTS: -Xmx3200m
+      TERM: dumb
+
     steps:
       - checkout
+
       - restore_cache:
           key: cache-{{ checksum "build.gradle" }}
 
@@ -19,11 +27,15 @@ jobs:
 
       - run: gradle build
 
-      - run:
-          command: |
-            mkdir -p /tmp/jar
-            cp build/libs/*.jar /tmp/jar
+      - add_ssh_keys:
+          fingerprints:
+            - "e3:3b:ba:60:99:e1:0e:77:ee:9c:86:06:de:f9:44:2d"
 
-      - store_artifacts:
-          path: /tmp/jar
-          destination: jar
+      - deploy:
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no bank-gateway@bank-gateway.euro2.ee /bin/mkdir /opt/bank-gateway/builds/"${CIRCLE_BUILD_NUM}"
+              scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -r  build/libs/* bank-gateway@bank-gateway.euro2.ee:/opt/bank-gateway/builds/"${CIRCLE_BUILD_NUM}"/
+              echo "cd /opt/bank-gateway && /bin/ln -sf builds/34/*.jar bank-gateway-latest.jar" | ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no bank-gateway@bank-gateway.euro2.ee
+              ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no bank-gateway@bank-gateway.euro2.ee sudo /bin/systemctl restart bank-gateway
+            fi
