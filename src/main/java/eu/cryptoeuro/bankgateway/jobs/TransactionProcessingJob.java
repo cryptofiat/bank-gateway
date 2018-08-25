@@ -4,10 +4,24 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import eu.cryptoeuro.accountIdentity.response.Account;
+import eu.cryptoeuro.bankgateway.KeyUtil;
+import eu.cryptoeuro.bankgateway.services.AccountIdentityService;
+import eu.cryptoeuro.bankgateway.services.ReserveService;
+import eu.cryptoeuro.transferInfo.command.TransferInfoRecord;
+import eu.cryptoeuro.transferInfo.service.TransferInfoService;
+import eu.cryptoeuro.wallet.client.CreateTransferCommand;
+import eu.cryptoeuro.wallet.client.FeeConstant;
+import eu.cryptoeuro.wallet.client.WalletClientService;
+import eu.cryptoeuro.wallet.client.response.ContractInfo;
+import eu.cryptoeuro.wallet.client.response.Transfer;
+import eu.cryptoeuro.wallet.client.service.WalletServerService;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +40,8 @@ public class TransactionProcessingJob {
     private SlackService slackService;
     @Autowired
     private TransactionService transactionService;
+    @Autowired
+    private ReserveService reserveService;
 
     @Scheduled(cron = "0 */5 * * * *")
     public void processTransactions() {
@@ -37,12 +53,15 @@ public class TransactionProcessingJob {
                     + transaction.getAmountSigned() + ", " + transaction.getProcessingStatus());
 
             if (Transaction.ProcessingStatus.NEW.equals(transaction.getProcessingStatus())) {
-                sendSlackNotification(transaction);
+                sendSlackNotification(transaction, "LHV reserve account has a new transaction.");
                 transaction.setProcessingStatus(Transaction.ProcessingStatus.NOTIFIED);
             }
 
             if (Transaction.ProcessingStatus.NOTIFIED.equals(transaction.getProcessingStatus())) {
-                // TODO talk to our Ethereum contract and give the money to this isikukood (transaction.getDebtorId(), can be null for "transactions outside estonian personal accounts")
+                reserveService.increaseSupplyAndCreditRecipient(transaction);
+
+                sendSlackNotification(transaction, "Added to total reserve.");
+                sendSlackNotification(transaction, "Transferred from reserve to account.");
             }
 
             // update status in DB
@@ -52,7 +71,9 @@ public class TransactionProcessingJob {
         log.info("Completed processing of transactions");
     }
 
-    private void sendSlackNotification(Transaction transaction) {
+
+
+    private void sendSlackNotification(Transaction transaction, String text) {
         // send a Slack notification
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         List<Field> fields = new ArrayList<>();
@@ -65,7 +86,7 @@ public class TransactionProcessingJob {
         attachment.setColor("#00f4a3");
         attachment.setFields(fields.toArray(new Field[fields.size()]));
         Message msg = new Message();
-        msg.setText("LHV reserve account has a new transaction.");
+        msg.setText(text);
         msg.setAttachments(new Attachment[] {attachment});
         slackService.sendReserveMessage(msg);
     }

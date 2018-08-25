@@ -13,10 +13,12 @@ import java.math.BigDecimal;
 @Slf4j
 @Transactional(rollbackFor = Exception.class)
 public class AccountBalanceService {
-  @Autowired
-	BalanceDao balanceDao;
+    @Autowired
+    BalanceDao balanceDao;
 
-	public Balance getCurrentBalance() {
-		return balanceDao.findLatest();
-	}
+    public Balance getCurrentBalance() {
+        return balanceDao.findLatest();
+    }
+
+
 }
