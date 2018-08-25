@@ -43,7 +43,7 @@ public class TransactionProcessingJob {
             }
             if (Transaction.ProcessingStatus.NOTIFIED.equals(transaction.getProcessingStatus())) {
                 try {
-                    reserveService.increaseSupply(transaction);
+                    String txHash = reserveService.increaseSupply(transaction);
                     sendSlackNotification(transaction, "Added to total reserve.");
                     transaction.setProcessingStatus(Transaction.ProcessingStatus.SUPPLY_INCREASED);
                 } catch (Exception e) {

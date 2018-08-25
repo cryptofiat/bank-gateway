@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.Web3jService;
+import org.web3j.protocol.core.RemoteCall;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.utils.Convert;
@@ -52,11 +53,11 @@ public class ReserveService extends BaseService implements InitializingBean {
         }
     }
 
-    public void increaseSupply(Transaction transaction) throws Exception {
+    public String increaseSupply(Transaction transaction) throws Exception {
         BigInteger amountInCents = transaction.getAmount().multiply(new BigDecimal(100)).toBigInteger();
         TransactionReceipt receipt = contracts.reserve.increaseSupply(amountInCents).send();
-
-        log.info("Added " + amountInCents + " cents to supply. Transaction hash: " + receipt.getBlockHash());
+        // todo return transaction hash to poll for status later
+        return null;
 
     }
 }
