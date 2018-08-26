@@ -3,7 +3,6 @@ package eu.cryptoeuro.bankgateway.services.transaction;
 import java.io.File;
 import java.util.List;
 
-import eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_053_001_02.Document;
 import eu.cryptoeuro.bankgateway.services.transaction.model.Transaction;
 
 /**
@@ -33,14 +32,14 @@ public interface TransactionService {
      * @return number of transactions imported or {@link TransactionService#ABNORMAL_IMPORT_RESULT} if no suitable data was found from input
      * @see eu.cryptoeuro.bankgateway.services.transaction.Transaction.Source
      */
-    int importTransactions(Document accountStatementDocument, String importSource);
+    int importTransactions(eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_053_001_02.Document accountStatementDocument, String importSource);
 
     /**
      * Finds transactions which are not completely processed by gateway.
      *
      * @return a list of transactions, can be empty, never null
      */
-    List<Transaction> findUnprocessedTransactions();
+    List<Transaction> findUnprocessedInboundTransactions();
 
     /**
      * Updates given transactions processing_status value to the given status.
@@ -50,4 +49,5 @@ public interface TransactionService {
      */
     void updateProcessingStatus(long transactionId, String processingStatus);
 
+    void importTransaction(eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_054_001_02.Document document);
 }

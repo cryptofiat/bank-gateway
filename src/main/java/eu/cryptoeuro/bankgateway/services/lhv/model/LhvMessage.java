@@ -45,6 +45,24 @@ public class LhvMessage<T> {
         return entity instanceof eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_053_001_02.Document;
     }
 
+    public eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_053_001_02.Document getAccountStatementDocument() {
+        if (!isAccountStatementEntity()) {
+            throw new IllegalStateException();
+        }
+        return (eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_053_001_02.Document) entity;
+    }
+
+    public boolean isDebitCreditNotification() {
+        return entity instanceof eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_054_001_02.Document;
+    }
+
+    public eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_054_001_02.Document getDebitCreditNotificationDocument() {
+        if (!isDebitCreditNotification()) {
+            throw new IllegalStateException();
+        }
+        return (eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_054_001_02.Document) entity;
+    }
+
     public boolean isErrorEntity() {
         return isError() || isErrors();
     }

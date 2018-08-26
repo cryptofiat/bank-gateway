@@ -4,10 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -19,6 +16,7 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.util.StreamReaderDelegate;
 import javax.xml.transform.stream.StreamSource;
 
+import eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_054_001_02.Document;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -39,6 +37,8 @@ import eu.cryptoeuro.bankgateway.services.lhv.LhvConnectApiImpl;
 import eu.cryptoeuro.bankgateway.services.transaction.model.Statement;
 import eu.cryptoeuro.bankgateway.services.transaction.model.Transaction;
 
+import static eu.cryptoeuro.bankgateway.services.transaction.model.Transaction.Source.LHV_CONNECT;
+
 @Slf4j
 @Service
 @Transactional
@@ -54,7 +54,7 @@ public class TransactionServiceImpl implements TransactionService {
     @PostConstruct
     public void init() {
         unmarshaller = LhvConnectApiImpl.createMarshaller("eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_052_001_02",
-                "eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_053_001_02");
+                "eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_053_001_02", "eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_054_001_02");
     }
 
     @SuppressWarnings("rawtypes")
@@ -94,10 +94,16 @@ public class TransactionServiceImpl implements TransactionService {
         return persistTransactions(extractStatements(accountStatementDocument), importSource);
     }
 
+    @Override
+    public void importTransaction(Document document) {
+        List<Statement> statements = Collections.singletonList(extractStatement(document));
+        persistTransactions(statements, LHV_CONNECT);
+    }
+
     @Transactional(readOnly = true)
     @Override
-    public List<Transaction> findUnprocessedTransactions() {
-        return transactionDao.findUnprocessed();
+    public List<Transaction> findUnprocessedInboundTransactions() {
+        return transactionDao.findUnprocessedInbound();
     }
 
     @Override
@@ -183,6 +189,10 @@ public class TransactionServiceImpl implements TransactionService {
             statements.add(statement);
         }
         return statements;
+    }
+
+    private Statement extractStatement(eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_054_001_02.Document debitCreditNotificationDocument) {
+        return null;
     }
 
     private List<Statement> extractStatements(eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_052_001_02.Document accountReportDocument) {

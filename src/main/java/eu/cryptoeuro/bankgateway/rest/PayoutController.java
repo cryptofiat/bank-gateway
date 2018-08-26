@@ -1,0 +1,33 @@
+package eu.cryptoeuro.bankgateway.rest;
+
+import eu.cryptoeuro.bankgateway.services.AccountBalanceService;
+import eu.cryptoeuro.bankgateway.services.balance.model.Balance;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
+
+@RestController
+@RequestMapping("/v1")
+@CrossOrigin(origins = "*")
+@Slf4j
+public class PayoutController {
+    @Autowired
+    AccountBalanceService accountBalanceService;
+
+    @ApiOperation(value = "Get reserve balance")
+    @RequestMapping(
+            method = GET,
+            value = "/totalReserve")
+    public ResponseEntity<TotalReserveResponse> totalReserve() {
+        Balance currentBalance = accountBalanceService.getCurrentBalance();
+        return new ResponseEntity<>(TotalReserveResponse.createFromBalance(currentBalance), HttpStatus.OK);
+    }
+
+}

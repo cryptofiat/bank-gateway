@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.cryptoeuro.transferInfo.command.TransferInfoRecord;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -14,10 +15,11 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 public class TransferInfoService {
 
-    private String transferInfo = "http://wallet.euro2.ee:8000/";
-    private ObjectMapper mapper = new ObjectMapper();
+    @Value("${transferInfo.server.url}")
+    private String transferInfo;
 
-    protected RestTemplate restTemplate = new RestTemplate();
+    private ObjectMapper mapper = new ObjectMapper();
+    private RestTemplate restTemplate = new RestTemplate();
 
     public TransferInfoRecord send(String blockHash, TransferInfoRecord transferInfoRecord) {
         HttpHeaders headers = new HttpHeaders();

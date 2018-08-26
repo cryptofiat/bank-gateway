@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import eu.cryptoeuro.bankgateway.jaxb.iso20022.camt_053_001_02.Document;
 import eu.cryptoeuro.bankgateway.services.common.AccountStatementRequestUtil;
 import eu.cryptoeuro.bankgateway.services.lhv.model.LhvMessage;
 import eu.cryptoeuro.bankgateway.services.transaction.TransactionService;
@@ -64,21 +63,18 @@ public class LhvConnectServiceImpl implements LhvConnectService {
             while (nextMessage.isPresent()) {
                 messageCount++;
                 @SuppressWarnings("unchecked")
-                LhvMessage<Document> message = (LhvMessage<Document>)nextMessage.get();
-                // Check if it is account statement response
-                if (!message.isAccountStatementEntity()) {
-                    if (message.hasError()) {
-                        errors.add(String.format("LHV Connect message (Request-Id: %s; Response-Id: %s) has errors! Status code: %s, errors: %s",
-                                message.getMessageRequestId(), message.getMessageResponseId(), message.getStatusCode(), message.getErrors()));
-                    }
-                    // If not, delete, since it is not supported
-                    markResponseAsRead(message);
-                    nextMessage = lhvConnectApi.getNextMessage();
-                    continue;
+                LhvMessage<?> message = nextMessage.get();
+                if (message.hasError()) {
+                    errors.add(String.format("LHV Connect message (Request-Id: %s; Response-Id: %s) has errors! Status code: %s, errors: %s",
+                            message.getMessageRequestId(), message.getMessageResponseId(), message.getStatusCode(), message.getErrors()));
+                } else if (message.isDebitCreditNotification()) {
+                    transactionService.importTransaction(message.getDebitCreditNotificationDocument());
+                } else if (message.isAccountStatementEntity()) {
+                    transactionService.importTransactions(message.getAccountStatementDocument(), Transaction.Source.LHV_CONNECT);
+                } else {
+                    log.info("Received unsupported LHV message " + message.getEntity().getClass());
                 }
 
-                // Otherwise extract transactions
-                transactionService.importTransactions(message.getEntity(), Transaction.Source.LHV_CONNECT);
                 markResponseAsRead(message);
                 nextMessage = lhvConnectApi.getNextMessage();
             }

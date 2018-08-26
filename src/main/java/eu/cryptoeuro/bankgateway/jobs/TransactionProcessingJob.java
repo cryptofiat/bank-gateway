@@ -38,44 +38,49 @@ public class TransactionProcessingJob {
     private TransferInfoService transferInfoService;
 
     @Scheduled(cron = "0 */5 * * * *")
-    public void processTransactions() {
-        log.info("Starting to process transactions");
+    public void processInboundTransactions() {
+        log.info("Starting to process inbound transactions");
+        List<Transaction> transactions = transactionService.findUnprocessedInboundTransactions();
+        log.info("Processing " + transactions.size() + " inbound transactions");
 
-        List<Transaction> transactions = transactionService.findUnprocessedTransactions();
         for (Transaction transaction : transactions) {
-            log.info("Transaction: " + transaction.getId() + ", " + transaction.getBookingDate() + ", " + transaction.getDebtorName() + ", "
-                    + transaction.getAmountSigned() + ", " + transaction.getProcessingStatus());
-
-            if (Transaction.ProcessingStatus.NEW.equals(transaction.getProcessingStatus())) {
-                sendSlackNotification(transaction, "LHV reserve account has a new transaction.");
-                transaction.setProcessingStatus(Transaction.ProcessingStatus.NOTIFIED);
-            }
-            if (Transaction.ProcessingStatus.NOTIFIED.equals(transaction.getProcessingStatus())) {
-                try {
-                    String txHash = reserveService.increaseSupply(transaction);
-                    sendSlackNotification(transaction, "Added to total reserve.");
-                    transaction.setProcessingStatus(Transaction.ProcessingStatus.SUPPLY_INCREASED);
-                } catch (Exception e) {
-                    log.error("Error processing transaction " + transaction, e);
-                }
-            }
-            if (Transaction.ProcessingStatus.SUPPLY_INCREASED.equals(transaction.getProcessingStatus())) {
-                Account recipientAccount = accountIdentityService.getAddress(transaction.getDebtorId());
-                try {
-                    String txHash = reserveService.creditAccount(transaction, recipientAccount);
-                    sendSlackNotification(transaction, "Transferred from reserve to account.");
-                    transaction.setProcessingStatus(Transaction.ProcessingStatus.USER_CREDITED);
-                    transferInfoService.send(HashUtils.without0x(txHash), new TransferInfoRecord(transaction.getDebtorId(), transaction.getDebtorId(), transaction.getDebtorAccountIban() + " " + transaction.getRemittanceInformation()));
-                } catch (Exception e) {
-                    log.error("Error processing transaction " + transaction, e);
-                }
-
-            }
-            // update status in DB
-            transactionService.updateProcessingStatus(transaction.getId(), transaction.getProcessingStatus());
+            processInboundTransaction(transaction);
         }
 
         log.info("Completed processing of transactions");
+    }
+
+    private void processInboundTransaction(Transaction transaction) {
+        log.info("Transaction: " + transaction.getId() + ", " + transaction.getBookingDate() + ", " + transaction.getDebtorName() + ", "
+                + transaction.getAmountSigned() + ", " + transaction.getProcessingStatus());
+
+        if (Transaction.ProcessingStatus.NEW.equals(transaction.getProcessingStatus())) {
+            sendSlackNotification(transaction, "LHV reserve account has a new transaction.");
+            transaction.setProcessingStatus(Transaction.ProcessingStatus.NOTIFIED);
+        }
+        if (Transaction.ProcessingStatus.NOTIFIED.equals(transaction.getProcessingStatus())) {
+            try {
+                String txHash = reserveService.increaseSupply(transaction);
+                sendSlackNotification(transaction, "Added to total reserve.");
+                transaction.setProcessingStatus(Transaction.ProcessingStatus.SUPPLY_INCREASED);
+            } catch (Exception e) {
+                log.error("Error processing transaction " + transaction, e);
+            }
+        }
+        if (Transaction.ProcessingStatus.SUPPLY_INCREASED.equals(transaction.getProcessingStatus())) {
+            Account recipientAccount = accountIdentityService.getAddress(transaction.getDebtorId());
+            try {
+                String txHash = reserveService.creditAccount(transaction, recipientAccount);
+                sendSlackNotification(transaction, "Transferred from reserve to account.");
+                transaction.setProcessingStatus(Transaction.ProcessingStatus.USER_CREDITED);
+                transferInfoService.send(HashUtils.without0x(txHash), new TransferInfoRecord(transaction.getDebtorId(), transaction.getDebtorId(), transaction.getDebtorAccountIban() + " " + transaction.getRemittanceInformation()));
+            } catch (Exception e) {
+                log.error("Error processing transaction " + transaction, e);
+            }
+
+        }
+        // update status in DB
+        transactionService.updateProcessingStatus(transaction.getId(), transaction.getProcessingStatus());
     }
 
 
