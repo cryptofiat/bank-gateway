@@ -87,6 +87,9 @@ dependencies {
 	compile('ee.euro2:wallet-server-client:0.0.2-SNAPSHOT')
 	compile('ee.euro2:contract-java-abi:0.0.2-SNAPSHOT')
 
+	compile('com.rollbar:rollbar-java:1.2.1')
+	compile('com.tapstream:rollbar-logback:0.1.4')
+
 	runtime('org.postgresql:postgresql:9.4.1212')
 
 	testCompile('org.springframework.boot:spring-boot-starter-test')
