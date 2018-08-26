@@ -110,4 +110,34 @@
         <modifyDataType tableName="transaction_eth_mapping" columnName="account_credit_txhash"
                         newDataType="varchar(128)"/>
     </changeSet>
+
+    <changeSet id="7" author="AlvarL">
+        <createTable tableName="payout_instruction">
+            <column name="id" type="bigint" autoIncrement="true" remarks="Primary key from sequence">
+                <constraints primaryKey="true" primaryKeyName="pk_payout_instruction_id" nullable="false"/>
+            </column>
+            <column name="date_created" type="datetime" remarks="Time the instruction was submitted"
+                    defaultValueComputed="now()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="processing_status" type="varchar(100)"
+                    remarks="Gateway payout instruction processing status (NEW, ...)" defaultValue="NEW">
+                <constraints nullable="false"/>
+            </column>
+            <column name="account_debit_txhash" type="varchar(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="amount" type="money" remarks="Amount of money to be paid out"/>
+            <column name="recipient_name" type="text" remarks="Recipient name"/>
+            <column name="recipient_iban" type="varchar(100)" remarks="Recipient account IBAN"/>
+            <column name="reference" type="text" remarks="Unstructured remittance information text"/>
+            <column name="reference_number" type="text"
+                    remarks="Reference number from structured remittance information text"/>
+            <column name="transaction_id" type="bigint"/>
+            <column name="account_servicer_reference" type="varchar(100)"
+                    remarks="Unique payment ID assigned by the bank"/>
+            <column name="supply_decrease_txhash" type="varchar(128)"/>
+        </createTable>
+        <addUniqueConstraint tableName="payout_instruction" columnNames="account_debit_txhash"/>
+    </changeSet>
 </databaseChangeLog>
